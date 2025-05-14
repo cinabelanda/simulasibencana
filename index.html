@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulasi Bencana Alam</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #add8e6;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    header, footer {
+      background-color: #4682b4;
+      color: white;
+      padding: 15px 0;
+      font-size: 24px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+    header button {
+      font-size: 14px;
+      padding: 5px 15px;
+      background-color: white;
+      color: #4682b4;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    header span {
+      flex-grow: 1;
+      text-align: center;
+    }
+    footer {
+      font-size: 14px;
+    }
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: #add8e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    #main-content {
+      display: none;
+      padding: 20px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background-color: #87ceeb;
+    }
+    button.correct {
+      background-color: #4CAF50;
+      color: white;
+    }
+    ul {
+      text-align: left;
+      margin-top: 10px;
+    }
+    .solution-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .solution-text {
+      max-width: 400px;
+      text-align: left;
+    }
+    .solution-image {
+      max-width: 300px;
+      transition: transform 0.3s ease;
+    }
+    .solution-image:hover {
+      transform: scale(1.03);
+    }
+    .jumpscare {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      background-color: black;
+    }
+    .jumpscare img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.8s forwards;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button onclick="startQuiz(currentDisaster)">Mulai Quiz</button>
+  <span>Simulasi Edukasi Bencana Alam</span>
+  <div></div>
+</header>
+
+<div id="loading-screen">
+  <h1>Simulasi Bencana Alam</h1>
+</div>
+
+<div id="main-content">
+  <h2>Pilih Jenis Bencana</h2>
+  <button onclick="showSolution('kebakaran')">Bencana Kebakaran</button>
+  <button onclick="showSolution('banjir')">Bencana Banjir</button>
+  <button onclick="showSolution('gempa')">Bencana Gempa Bumi</button>
+
+  <div id="content">
+    <div id="default-image" style="margin-top: 20px;">
+      <img src="skesa.jpg" alt="Simulasi Bencana" style="max-width: 680px; width: 80%;">
+    </div>
+  </div>
+
+  <div id="quiz" style="display: none;">
+    <h3 id="question"></h3>
+    <div id="choices"></div>
+  </div>
+</div>
+
+<div class="jumpscare" id="jumpscare">
+  <img src="keren.png" alt="Jumpscare">
+</div>
+
+<audio id="screamSound" src="lagu.mpeg" preload="auto"></audio>
+<audio id="correctSound" src="correct.mpeg" preload="auto"></audio>
+
+<footer>&copy; 2025 Simulasi Edukasi. Semua Hak Dilindungi.</footer>
+
+<script>
+  let currentDisaster = "";
+  let currentQuestion = 0;
+  let correctCount = 0;
+  let wrongCount = 0;
+
+  const solutions = {
+    kebakaran: `
+  <div class="solution-container">
+          <div class="solution-text">
+            <ul>
+              <h3>Apa Itu Bencana Kebakaran?</h3>
+
+<p>Bencana kebakaran adalah peristiwa terbakarnya suatu tempat atau benda secara besar-besaran yang bisa mengakibatkan kerusakan, kerugian harta benda, bahkan korban jiwa. Kebakaran bisa terjadi di rumah, hutan, gedung, atau pabrik.
+
+<h3>Penyebab Kebakaran:</h3>
+  <li>Korsleting listrik
+Kabel rusak, colokan bertumpuk, atau penggunaan listrik berlebihan.
+
+<li>Kompor atau api terbuka
+Lupa mematikan kompor gas, lilin yang dibiarkan menyala tanpa pengawasan.
+
+<li>Rokok
+Puntung rokok dibuang sembarangan, apalagi dekat bahan mudah terbakar.
+
+<li>Bahan kimia/gas
+Tabung gas bocor atau bahan kimia yang mudah terbakar tanpa penyimpanan yang benar.
+
+<li>Pembakaran liar
+Membakar sampah, rumput, atau lahan secara sembarangan.
+
+<li>Petir atau panas ekstrem
+Bisa memicu kebakaran hutan atau rumah yang mudah terbakar.</li>
+
+<h3>Tindakan Saat Kebakaran:</h3>
+
+<li>Tetap tenang dan jangan panik
+Panik bisa membuat kamu lupa jalur evakuasi atau bertindak gegabah
+
+<li>Evakuasi segera
+Keluar dari gedung lewat jalur evakuasi. Jangan gunakan lift.
+
+<li>Tutup hidung dan mulut dengan kain basah
+Untuk menghindari asap beracun.
+
+<li>Gunakan APAR jika aman
+Jika api masih kecil dan kamu tahu cara menggunakannya.
+
+<li>Hubungi pemadam kebakaran
+Telepon 113 atau layanan darurat lokal.
+
+                      </ul>
+          </div>
+          <img class="solution-image" src="kebakaran.jpg" alt="Kebakaran">
+        </div>
+`,
+    banjir: `
+      <div class="solution-container">
+          <div class="solution-text">
+            <ul>
+
+              <h3>Apa Itu Banjir?</h3>
+
+<p>Banjir adalah bencana alam berupa meluapnya air ke daratan yang biasanya kering. Banjir bisa merendam rumah, jalan, hingga fasilitas umum, dan bisa menimbulkan kerugian besar baik secara materi maupun keselamatan.
+
+  <h3>Penyebab Banjir:</h3>
+
+<li>Curah hujan tinggi
+Air hujan yang deras dan berlangsung lama membuat sungai tak mampu menampung volume air.
+
+<li>Saluran air tersumbat
+Sampah menumpuk di selokan, gorong-gorong, atau sungai menyebabkan air tidak bisa mengalir lancar.
+
+<li>Penggundulan hutan
+Hutan yang gundul tidak bisa menyerap air hujan, sehingga air langsung mengalir ke dataran rendah.
+
+<li>Permukiman di daerah rawan banjir
+Seperti daerah rendah atau bantaran sungai.
+
+<li>Drainase buruk
+Sistem pembuangan air yang tidak memadai memperparah genangan.
+
+              
+<h3>Tindakan Saat Banjir:</h3>
+
+<li>Evakuasi ke tempat aman
+Segera pindah ke dataran tinggi atau posko pengungsian.
+
+<li>Matikan listrik
+Hindari risiko kesetrum saat air mulai masuk rumah.
+
+<li>Jaga barang penting
+Simpan dokumen penting di tempat tinggi atau tahan air.
+
+<li>Gunakan pelampung atau benda mengapung
+Jika harus menyelamatkan diri lewat air.
+
+<li>Ikuti arahan petugas
+Jangan nekat menerobos banjir atau arus deras.
+            </ul>
+          </div>
+          <img class="solution-image" src="banjir.jpeg" alt="Banjir">
+        </div>
+    `,
+    gempa: `
+       <div class="solution-container">
+          <div class="solution-text">
+            <ul>
+             <h3> Apa Itu Gempa Bumi? </h3>
+
+<p> Gempa bumi adalah getaran atau guncangan yang terjadi di permukaan bumi akibat pergerakan lempeng bumi (tektonik), letusan gunung berapi, atau aktivitas lainnya di dalam bumi. Guncangan ini bisa bersifat ringan hingga sangat kuat dan merusak.
+
+  <h3>Penyebab Gempa Bumi</h3>
+
+<li> Pergerakan lempeng tektonik
+Lempeng-lempeng bumi saling bertabrakan, bergeser, atau menjauh sehingga menimbulkan getaran.
+
+ <li> Aktivitas gunung berapi (gempa vulkanik)
+Tekanan dari dalam gunung api yang akan meletus dapat menyebabkan gempa.
+
+<li> Runtuhan tanah atau goa (gempa runtuhan)
+Skala kecil, biasanya terjadi di area tambang atau goa.
+
+<h3>Dampak Gempa Bumi</h3>
+
+<li>Kerusakan bangunan dan infrastruktur
+
+<li>Korban jiwa dan luka-luka
+
+<li>Tanah longsor
+
+<li>Tsunami (jika gempa terjadi di bawah laut)
+
+<li>Gangguan listrik, air, dan komunikasi
+
+<h3>Tindakan Saat Terjadi Gempa:</h3>
+
+<li>Segera berlindung di bawah meja atau benda kokoh
+Lindungi kepala dan leher dari benda jatuh.
+
+<li>Jauhi jendela, kaca, dan benda gantung
+Karena bisa pecah dan melukai.
+
+<li>Jika di luar, jauhi gedung, tiang listrik, dan pohon besar
+Cari tempat terbuka.
+
+<li>Jika di kendaraan, berhenti perlahan di tempat aman
+Jangan berhenti di bawah jembatan atau flyover.
+
+<li>Setelah gempa, evakuasi dengan hati-hati
+Waspadai gempa susulan dan periksa kondisi sekitar.
+            </ul>
+          </div>
+          <img class="solution-image" src="gempa.webp" alt="Gempa Bumi">
+        </div>
+    `
+  };
+
+  const quizData = {
+    kebakaran: [
+      {
+        question: "Apa yang harus dilakukan saat terjadi kebakaran kecil?",
+        choices: ["Lari ke luar", "Gunakan APAR", "Naik ke atap"],
+        correct: 1
+      },
+      {
+        question: "Nomor darurat mana yang harus dihubungi saat terjadi kebakaran besar?",
+        choices: ["110", "113", "118"],
+        correct: 1
+      },
+      {
+        question: "Benda yang paling berguna saat kebakaran kecil?",
+        choices: ["Kain Basah", "Ember", "APAR"],
+        correct: 2
+      }
+    ],
+    banjir: [
+      {
+        question: "Apa yang harus dimatikan saat terjadi banjir?",
+        choices: ["TV", "Kompor", "Listrik"],
+        correct: 2
+      },
+      {
+        question: "Kemana harus pergi saat banjir?",
+        choices: ["Ke basement", "Tempat tinggi", "Kolam renang"],
+        correct: 1
+      },
+      {
+        question: "Apa yang harus disiapkan saat banjir?",
+        choices: ["Tas darurat", "Payung", "Kamera"],
+        correct: 0
+      }
+    ],
+    gempa: [
+      {
+        question: "Apa yang harus dilakukan saat gempa berlangsung?",
+        choices: ["Lari keluar", "Berlindung di bawah meja ", "Lompat ke kasur"],
+        correct: 0
+      },
+      {
+        question: "Apa yang harus dihindari saat gempa?",
+        choices: ["Pohon", "Jendela", "Meja"],
+        correct: 1
+      },
+      {
+        question: "Kapan sebaiknya keluar dari bangunan?",
+        choices: ["Saat guncangan masih terjadi", "Setelah guncangan berhenti", "Sebelum gempa mulai"],
+        correct: 0
+      }
+    ]
+  };
+
+  function showSolution(type) {
+    currentDisaster = type;
+    currentQuestion = 0;
+    correctCount = 0;
+    wrongCount = 0;
+
+    // Sembunyikan gambar default
+    const defaultImg = document.getElementById("default-image");
+    if (defaultImg) defaultImg.style.display = "none";
+
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('quiz').innerHTML = `
+      <h3 id="question"></h3>
+      <div id="choices"></div>
+    `;
+    const content = document.getElementById('content');
+    content.innerHTML = solutions[type];
+  }
+
+  function startQuiz(type) {
+    currentDisaster = type;
+    currentQuestion = 0;
+    correctCount = 0;
+    wrongCount = 0;
+
+    document.getElementById('content').innerHTML = '';
+    document.getElementById('quiz').innerHTML = `
+      <h3 id="question"></h3>
+      <div id="choices"></div>
+    `;
+    document.getElementById('quiz').style.display = 'block';
+    showQuestion();
+  }
+
+  function showQuestion() {
+    const q = quizData[currentDisaster][currentQuestion];
+    document.getElementById('question').innerText = q.question;
+    const choicesDiv = document.getElementById('choices');
+    choicesDiv.innerHTML = '';
+
+    q.choices.forEach((choice, index) => {
+      const btn = document.createElement('button');
+      btn.textContent = choice;
+      btn.onclick = () => checkAnswer(index);
+      choicesDiv.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(selected) {
+    const q = quizData[currentDisaster][currentQuestion];
+    const buttons = document.querySelectorAll("#choices button");
+
+    buttons.forEach((btn, index) => {
+      btn.disabled = true;
+      if (index === q.correct) {
+        btn.classList.add("correct");
+      }
+    });
+
+    if (selected === q.correct) {
+      correctCount++;
+      document.getElementById("correctSound").play();
+    } else {
+      wrongCount++;
+      triggerJumpscare();
+    }
+
+    currentQuestion++;
+
+    setTimeout(() => {
+      if (currentQuestion < quizData[currentDisaster].length) {
+        showQuestion();
+      } else {
+        document.getElementById('quiz').innerHTML = `
+          <h3>Quiz selesai!</h3>
+          <p>Jawaban Benar: ${correctCount}</p>
+          <p>Jawaban Salah: ${wrongCount}</p>
+        `;
+      }
+    }, 1500);
+  }
+
+  function triggerJumpscare() {
+    const jumpscare = document.getElementById('jumpscare');
+    const sound = document.getElementById('screamSound');
+    jumpscare.style.display = 'block';
+    sound.play();
+    setTimeout(() => {
+      jumpscare.style.display = 'none';
+    }, 1000);
+  }
+
+  window.onload = () => {
+    setTimeout(() => {
+      document.getElementById('loading-screen').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+    }, 3000);
+  };
+</script>
+
+</body>
+</html>
